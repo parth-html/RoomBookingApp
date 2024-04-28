@@ -30,7 +30,9 @@ router.post("/booking", sessionChecker, (req, res) => {
 
   var inputData = { ...req.body, userId: req.session.userId }
   Bookings.create(inputData)
-    .then((docs) => { res.status(201).json(docs) })
+    .then((docs) => { 
+      req.io.emit('bookingUpdate', docs);
+      res.status(201).json(docs) })
     .catch(e => res.status(500).json({ error: e.message }))
 })
 

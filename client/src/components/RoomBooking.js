@@ -4,6 +4,7 @@ import axios from 'axios';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './RoomBooking.css';
+import socketIOClient from 'socket.io-client';
 
 axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
@@ -34,6 +35,24 @@ const RoomBooking = () => {
     };
 
     fetchRooms();
+
+    const socket = socketIOClient(axios.defaults.baseURL);
+
+    // Listen for 'bookingUpdate' event emitted by the server
+    socket.on('bookingUpdate', (updatedBookings) => {
+      // Handle real-time booking updates
+      const updatedTimeSlots = { ...timeSlots };
+        const isSelf = [updatedBookings].some((r) => r.userId === userId);
+        updatedTimeSlots[updatedBookings.timeSlot].isDisable = true;
+        updatedTimeSlots[updatedBookings.timeSlot].isSelf = isSelf;
+      setTimeSlots(updatedTimeSlots);
+    });
+
+    return () => {
+      // Clean up the socket connection
+      socket.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleBookingslots = async (date) => {
