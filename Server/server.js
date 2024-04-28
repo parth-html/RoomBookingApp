@@ -25,17 +25,17 @@ app.use(cors(
 ));
 
 // MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/roomBookingDB')
+mongoose.connect('mongodb://localhost:27017/roomBookingDB') // TODO: make this a .env variable
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log(err));
 
 var store = new MongoDBStore({
-  uri: 'mongodb://localhost:27017/roomBookingDB',
-  collection: 'mySessions'
+  uri: 'mongodb://localhost:27017/roomBookingDB', // TODO: make this a .env variable
+  collection: 'Sessions'
 });
 
 app.use(require('express-session')({
-    secret: 'This is a secret',
+    secret: 'This is a secret',   // TODO: make this a .env variable
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
     },

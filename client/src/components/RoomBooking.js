@@ -84,12 +84,13 @@ const RoomBooking = () => {
           "bookingDate": moment(selectedDate).format('YYYY-MM-DD'),
           "timeSlot": selectedTimeSlot,
         });
-        if(response){
-          
+        if (response) {
+          const roomName = rooms.find(room => room._id === selectedRoom).name;
+          handleBookingslots(selectedDate);
+          setSelectedTimeSlot(null);
+          alert(`Room ${roomName} booked for ${selectedTimeSlot} on ${selectedDate}`);
         }
-        handleBookingslots(selectedDate);
-        setSelectedTimeSlot(null);
-        alert(`Room ${selectedRoom} booked for ${selectedTimeSlot} on ${selectedDate}`);
+
       } catch (error) {
         console.error('Error fetching rooms:', error);
       }
@@ -124,6 +125,8 @@ const RoomBooking = () => {
                 onClick={() => handleRoomSelect(room._id)}
               >
                 {room.name}
+                <small>Capacity: {room.capacity}</small>
+                <small>Facility: {room.facility.join(", ")}</small>
               </li>
             ))}
           </ul>
@@ -142,19 +145,19 @@ const RoomBooking = () => {
               {selectedDate && (
                 <>
                   <h3>Select a Time Slot:</h3>
-                <div className="time-slot-selection">
-                  {Object.keys(timeSlots).map((slot) => (
-                    <button
-                      key={slot}
-                      onClick={() => handleTimeSlotSelect(slot)}
-                      className={`${selectedTimeSlot === slot ? 'selected' : '' } ${(timeSlots[slot].isDisable && !timeSlots[slot].isSelf)? 'booked-other' : ''} ${timeSlots[slot].isSelf ? 'booked-self' : ''}`}
-                      disabled={timeSlots[slot].isDisable}
-                    >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
-            </>
+                  <div className="time-slot-selection">
+                    {Object.keys(timeSlots).map((slot) => (
+                      <button
+                        key={slot}
+                        onClick={() => handleTimeSlotSelect(slot)}
+                        className={`${selectedTimeSlot === slot ? 'selected' : ''} ${(timeSlots[slot].isDisable && !timeSlots[slot].isSelf) ? 'booked-other' : ''} ${timeSlots[slot].isSelf ? 'booked-self' : ''}`}
+                        disabled={timeSlots[slot].isDisable}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           )}
