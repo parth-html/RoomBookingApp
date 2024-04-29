@@ -16,6 +16,7 @@ const RoomBooking = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [updatedBookings, setUpdatedBookings] = useState(null);
   const [timeSlots, setTimeSlots] = useState({
     "09:00 AM - 10:00 AM": { isDisable: false, isSelf: false },
     "10:00 AM - 11:00 AM": { isDisable: false, isSelf: false },
@@ -39,13 +40,9 @@ const RoomBooking = () => {
     const socket = socketIOClient(axios.defaults.baseURL);
 
     // Listen for 'bookingUpdate' event emitted by the server
-    socket.on('bookingUpdate', (updatedBookings) => {
+    socket.on('bookingUpdate', (updatedBooking) => {
       // Handle real-time booking updates
-      const updatedTimeSlots = { ...timeSlots };
-        const isSelf = [updatedBookings].some((r) => r.userId === userId);
-        updatedTimeSlots[updatedBookings.timeSlot].isDisable = true;
-        updatedTimeSlots[updatedBookings.timeSlot].isSelf = isSelf;
-      setTimeSlots(updatedTimeSlots);
+      setUpdatedBookings(updatedBooking);
     });
 
     return () => {
@@ -54,6 +51,20 @@ const RoomBooking = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handle real-time booking updates
+  useEffect(()=>{
+    if(updatedBookings && selectedRoom===updatedBookings.roomId && moment(selectedDate).format('YYYY-MM-DD')===moment(updatedBookings.bookingDate).format('YYYY-MM-DD')){
+        const updatedTimeSlots = { ...timeSlots };
+          const isSelf = [updatedBookings].some((r) => r.userId === userId);
+          updatedTimeSlots[updatedBookings.timeSlot].isDisable = true;
+          updatedTimeSlots[updatedBookings.timeSlot].isSelf = isSelf;
+        setTimeSlots(updatedTimeSlots);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[updatedBookings])
+
+  
 
   const handleBookingslots = async (date) => {
     const response = await axios.get('/api/rooms/booking', {
